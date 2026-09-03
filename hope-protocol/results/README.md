@@ -27,5 +27,10 @@ Results:
     Run 2 saved as baseline_repro_2026-09-03_run2.csv
     Run 2 matched Run 1 exactly.
 
+CSV files:
+
+- summary_20260903-102204.csv
+- summary_20260903-102825.csv
+
 Conclusion:
 Current experiment is reproducible under the recorded environment and seeds.
