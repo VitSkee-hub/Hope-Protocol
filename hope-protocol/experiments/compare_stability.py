@@ -92,6 +92,42 @@ def run(seed: int, use_hope: bool, epsilon: float, episodes: int = 5000, max_ste
             cur_success_streak = 0
             longest_fail_streak = max(longest_fail_streak, cur_fail_streak)
 
+    # Post-first-sucess stability metrics
+    success_episodes = np.flatnonzero(success_raw == 1)
+
+    fail_streak_after_first_success = -1
+    episodes_until_second_success = -1
+    average_gap_between_successes = -1.0
+    max_gap_between_successes = -1
+    success_rate_after_first_success = 0.0
+
+    if len(success_episodes) >= 1:
+        first_success_idx = int(success_episodes[0])
+
+        after_first = success_raw[first_success_idx +1:]
+
+        if len(after_first) > 0:
+            success_rate_after_first_success = float(np.mean(after_first))
+
+        current_fail_streak = 0
+
+        for outcome in after_first:
+            if outcome == 0:
+                current_fail_streak += 1
+                fail_streak_after_first_success = max(fail_streak_after_first_success, current_fail_streak)
+            else:
+                current_fail_streak = 0
+        if fail_streak_after_first_success == -1:
+            fail_streak_after_first_success = 0
+
+    if len(success_episodes) >= 2:
+        success_differences = np.diff(success_episodes)
+        failure_gaps = success_differences - 1  # gaps between successes
+
+        episodes_until_second_success = int(success_differences[0])  # first gap
+        average_gap_between_successes = float(np.mean(failure_gaps))
+        max_gap_between_successes = int(np.max(failure_gaps))   
+
     env.close()
 
     return {
@@ -104,10 +140,17 @@ def run(seed: int, use_hope: bool, epsilon: float, episodes: int = 5000, max_ste
         "final_success_rate_1000": float(np.mean(success_raw[-1000:])),
         "longest_success_streak": int(longest_success_streak),
         "longest_fail_streak": int(longest_fail_streak),
+
+        "fail_streak_after_first_success": int(fail_streak_after_first_success),
+        "episodes_until_second_success": int(episodes_until_second_success),
+        "average_gap_between_successes": float(average_gap_between_successes),
+        "max_gap_between_successes": int(max_gap_between_successes),
+        "success_rate_after_first_success": float(success_rate_after_first_success),
+
         "success_raw": success_raw,
         "reward_transformed_sum": reward_transformed_sum,
     }
-
+    
 
 def rolling_mean(x: np.ndarray, window: int) -> np.ndarray:
     if window <= 1:
@@ -169,8 +212,26 @@ def main():
                 "final_success_rate_1000": result["final_success_rate_1000"],
                 "longest_success_streak": result["longest_success_streak"],
                 "longest_fail_streak": result["longest_fail_streak"],
+
+                # Post-first-success stability metrics
+                "fail_streak_after_first_success":
+                    result["fail_streak_after_first_success"],
+
+                "episodes_until_second_success":
+                    result["episodes_until_second_success"],
+
+                "average_gap_between_successes":
+                    result["average_gap_between_successes"],
+
+                "max_gap_between_successes":
+                    result["max_gap_between_successes"],
+
+                "success_rate_after_first_success":
+                    result["success_rate_after_first_success"],
+
                 "plateau_episode": plateau,
             }
+
             rows.append(row)
 
             label = "HOPE" if use_hope else "BASE"
