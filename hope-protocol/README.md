@@ -61,3 +61,69 @@ And then:
 | compare_stability.py
 
 lets you compare the resulting behavior.
+
+# requirements.txt
+
+Should be ran before testing to set install necessary packages and ensure accurate testing.
+
+---
+
+---
+
+# start-up
+
+## Running HOPE Experiments
+
+Open PowerShell or the VS Code terminal and navigate to the root of the HOPE Protocol project:
+
+```powershell
+cd C:\Users\Aerusuke\Desktop\Hope-Protocol\hope-protocol
+```
+
+### 1. Install the required Python packages
+
+If this is your first time running the project:
+
+```powershell
+py -3.11 -m pip install numpy gymnasium
+```
+
+### 2. Run an experiment
+
+Experiments should be run **from the project root as Python modules**.
+
+For example:
+
+```powershell
+py -3.11 -m experiments.compare_stability
+```
+
+Do **not** run:
+
+```powershell
+python experiments/compare_stability.py
+```
+
+Running the file directly may cause errors such as:
+
+```text
+ModuleNotFoundError: No module named 'agents'
+```
+
+because the experiment imports modules from other project folders.
+
+### Other experiments
+
+Use the same format for other files inside `experiments/`:
+
+```powershell
+py -3.11 -m experiments.FILE_NAME
+```
+
+For example, if the file is `compare_compatibility.py`:
+
+```powershell
+py -3.11 -m experiments.compare_compatibility
+```
+
+Do not include `.py` when using `python -m`.
